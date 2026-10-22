@@ -36,15 +36,22 @@ describe('OpensearchStore', () => {
     const ent0 = seneca.make('foo')
     const ent1 = seneca.make('foo/bar')
 
-    expect(resolveIndex(ent0, { index: {} })).toEqual('foo')
-    expect(resolveIndex(ent0, { index: { exact: 'qaz' } })).toEqual('qaz')
+    expect(resolveIndex({ ent: ent0 }, { index: {} })).toEqual('foo')
+    expect(resolveIndex({ ent: ent0 }, { index: { exact: 'qaz' } })).toEqual('qaz')
 
-    expect(resolveIndex(ent1, { index: {} })).toEqual('foo_bar')
-    expect(resolveIndex(ent1, { index: { prefix: 'p0', suffix: 's0' } })).toEqual('p0_foo_bar_s0')
-    expect(resolveIndex(ent1, {
+    expect(resolveIndex({ ent: ent1 }, { index: {} })).toEqual('foo_bar')
+    expect(resolveIndex({ ent: ent1 }, { index: { prefix: 'p0', suffix: 's0' } })).toEqual('p0_foo_bar_s0')
+    expect(resolveIndex({ ent: ent1 }, {
       index: { map: { '-/foo/bar': 'FOOBAR' }, prefix: 'p0', suffix: 's0' }
     }))
       .toEqual('FOOBAR')
+
+    // An index$ directive names the index, whatever the options say.
+    const exact = { index: { exact: 'qaz' } }
+    expect(resolveIndex({ ent: ent1, index$: 'i0' }, exact)).toEqual('i0')
+    expect(resolveIndex({ ent: ent1, q: { index$: 'i1' } }, exact)).toEqual('i1')
+    expect(resolveIndex({ ent: ent1, q: { directive$: { index$: 'i2' } } }, exact))
+      .toEqual('i2')
   }, 22222)
 
 
