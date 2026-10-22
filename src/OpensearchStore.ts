@@ -51,7 +51,7 @@ function OpensearchStore(this: any, options: Options) {
       const ent = msg.ent
 
       const canon = ent.canon$({ object: true })
-      const index = resolveIndex(ent, options)
+      const index = resolveIndex(msg, options)
 
       const body = ent.data$(false)
 
@@ -84,7 +84,7 @@ function OpensearchStore(this: any, options: Options) {
       const ent = msg.ent
 
       // const canon = ent.canon$({ object: true })
-      const index = resolveIndex(ent, options)
+      const index = resolveIndex(msg, options)
 
       let q = msg.q || {}
 
@@ -117,7 +117,7 @@ function OpensearchStore(this: any, options: Options) {
       // const seneca = this
       const ent = msg.ent
 
-      const index = resolveIndex(ent, options)
+      const index = resolveIndex(msg, options)
       const query = buildQuery({ index, options, msg })
 
       // console.log('LISTQ')
@@ -149,7 +149,7 @@ function OpensearchStore(this: any, options: Options) {
       // const seneca = this
       const ent = msg.ent
 
-      const index = resolveIndex(ent, options)
+      const index = resolveIndex(msg, options)
 
       const q = msg.q || {}
       let id = q.id
@@ -278,7 +278,7 @@ function buildQuery(spec: { index: string; options: any; msg: any }) {
     }
   }
 
-  const vector$ = msg.vector$ || q.directive$?.vector$
+  const vector$ = msg.vector$ || q.vector$ || q.directive$?.vector$
   if (vector$) {
     parts.push({
       knn: {
@@ -305,7 +305,14 @@ function buildQuery(spec: { index: string; options: any; msg: any }) {
   return query
 }
 
-function resolveIndex(ent: any, options: Options) {
+function resolveIndex(msg: any, options: Options) {
+  const ent = msg.ent
+
+  const index = msg.index$ || msg.q?.index$ || msg.q?.directive$?.index$
+  if (null != index) {
+    return index
+  }
+
   let indexOpts = options.index
   if ('' != indexOpts.exact && null != indexOpts.exact) {
     return indexOpts.exact
