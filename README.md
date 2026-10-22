@@ -44,7 +44,10 @@ tutorials to sample apps to help get you up and running quickly.
 For code samples, please see the [tests][OpensearchStore-tests] for this plugin.
 
 ### Seneca compatibility
-Supports Seneca versions **2.x** and above
+Supports Seneca 3 from 3.38 and Seneca 4 (tested with 4.0.0 and the
+4.0.0-rc5 prerelease). Seneca 4.0.0 requires Node.js 24 or later. Use
+the entity plugin `@seneca/entity` 29 or later, which replaces
+`seneca-entity`.
 
 
 ### Supported functionality
@@ -53,8 +56,8 @@ All Seneca data store supported functionality is implemented in [seneca-store-te
 ## Install
 
 ```sh
-npm install seneca
-npm install SenecaOpensearchStore
+npm install seneca @seneca/entity
+npm install @seneca/opensearch-store
 ```
 
 You'll need the [seneca](http://github.com/senecajs/seneca) toolkit to use this module - it's just a plugin.
@@ -65,7 +68,7 @@ You'll need the [seneca](http://github.com/senecajs/seneca) toolkit to use this 
 var seneca = require('seneca')()
 
 seneca.use('basic')
-.use('entity')
+.use('@seneca/entity')
 
 // Since OpensearchStore is a default plugin, it does not need to be
 // added with .use(). You can just go ahead and use it.

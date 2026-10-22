@@ -4,10 +4,6 @@ import { AwsSigv4Signer } from '@opensearch-project/opensearch/aws'
 import { Client } from '@opensearch-project/opensearch'
 import { defaultProvider } from '@aws-sdk/credential-provider-node'
 
-import { Gubu } from 'gubu'
-
-const { Open, Any } = Gubu
-
 type Options = {
   debug: boolean
   map?: any
@@ -51,7 +47,7 @@ function OpensearchStore(this: any, options: Options) {
       const ent = msg.ent
 
       const canon = ent.canon$({ object: true })
-      const index = resolveIndex(ent, options)
+      const index = resolveIndex(msg, options)
 
       const body = ent.data$(false)
 
@@ -84,7 +80,7 @@ function OpensearchStore(this: any, options: Options) {
       const ent = msg.ent
 
       // const canon = ent.canon$({ object: true })
-      const index = resolveIndex(ent, options)
+      const index = resolveIndex(msg, options)
 
       let q = msg.q || {}
 
@@ -117,7 +113,7 @@ function OpensearchStore(this: any, options: Options) {
       // const seneca = this
       const ent = msg.ent
 
-      const index = resolveIndex(ent, options)
+      const index = resolveIndex(msg, options)
       const query = buildQuery({ index, options, msg })
 
       // console.log('LISTQ')
@@ -149,7 +145,7 @@ function OpensearchStore(this: any, options: Options) {
       // const seneca = this
       const ent = msg.ent
 
-      const index = resolveIndex(ent, options)
+      const index = resolveIndex(msg, options)
 
       const q = msg.q || {}
       let id = q.id
@@ -278,7 +274,7 @@ function buildQuery(spec: { index: string; options: any; msg: any }) {
     }
   }
 
-  const vector$ = msg.vector$ || q.directive$?.vector$
+  const vector$ = msg.vector$ || q.vector$ || q.directive$?.vector$
   if (vector$) {
     parts.push({
       knn: {
@@ -305,7 +301,14 @@ function buildQuery(spec: { index: string; options: any; msg: any }) {
   return query
 }
 
-function resolveIndex(ent: any, options: Options) {
+function resolveIndex(msg: any, options: Options) {
+  const ent = msg.ent
+
+  const index = msg.index$ || msg.q?.index$ || msg.q?.directive$?.index$
+  if (null != index) {
+    return index
+  }
+
   let indexOpts = options.index
   if ('' != indexOpts.exact && null != indexOpts.exact) {
     return indexOpts.exact
@@ -332,10 +335,11 @@ function resolveIndex(ent: any, options: Options) {
   return prefix + infix + suffix
 }
 
-// Default options.
-const defaults: Options = {
+// Default options, built with the builders Seneca passes in: shape from
+// Seneca 4.0.0, Gubu before.
+const defaults = ({ valid }: { valid: any }): Options => ({
   debug: false,
-  map: Any(),
+  map: valid.Any(),
   index: {
     prefix: '',
     suffix: '',
@@ -357,14 +361,14 @@ const defaults: Options = {
     },
   },
 
-  aws: Open({
+  aws: valid.Open({
     region: 'us-east-1',
   }),
 
-  opensearch: Open({
+  opensearch: valid.Open({
     node: 'NODE-URL',
   }),
-}
+})
 
 Object.assign(OpensearchStore, {
   defaults,
