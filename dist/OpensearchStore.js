@@ -4,8 +4,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const aws_1 = require("@opensearch-project/opensearch/aws");
 const opensearch_1 = require("@opensearch-project/opensearch");
 const credential_provider_node_1 = require("@aws-sdk/credential-provider-node");
-const gubu_1 = require("gubu");
-const { Open, Any } = gubu_1.Gubu;
 function OpensearchStore(options) {
     const seneca = this;
     const init = seneca.export('entity/init');
@@ -264,10 +262,11 @@ function resolveIndex(msg, options) {
         .replace(/\//g, '_');
     return prefix + infix + suffix;
 }
-// Default options.
-const defaults = {
+// Default options, built with the builders Seneca passes in: shape from
+// Seneca 4.0.0, Gubu before.
+const defaults = ({ valid }) => ({
     debug: false,
-    map: Any(),
+    map: valid.Any(),
     index: {
         prefix: '',
         suffix: '',
@@ -286,13 +285,13 @@ const defaults = {
             size: 11,
         },
     },
-    aws: Open({
+    aws: valid.Open({
         region: 'us-east-1',
     }),
-    opensearch: Open({
+    opensearch: valid.Open({
         node: 'NODE-URL',
     }),
-};
+});
 Object.assign(OpensearchStore, {
     defaults,
     utils: { resolveIndex },

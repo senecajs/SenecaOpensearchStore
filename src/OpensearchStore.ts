@@ -4,10 +4,6 @@ import { AwsSigv4Signer } from '@opensearch-project/opensearch/aws'
 import { Client } from '@opensearch-project/opensearch'
 import { defaultProvider } from '@aws-sdk/credential-provider-node'
 
-import { Gubu } from 'gubu'
-
-const { Open, Any } = Gubu
-
 type Options = {
   debug: boolean
   map?: any
@@ -339,10 +335,11 @@ function resolveIndex(msg: any, options: Options) {
   return prefix + infix + suffix
 }
 
-// Default options.
-const defaults: Options = {
+// Default options, built with the builders Seneca passes in: shape from
+// Seneca 4.0.0, Gubu before.
+const defaults = ({ valid }: { valid: any }): Options => ({
   debug: false,
-  map: Any(),
+  map: valid.Any(),
   index: {
     prefix: '',
     suffix: '',
@@ -364,14 +361,14 @@ const defaults: Options = {
     },
   },
 
-  aws: Open({
+  aws: valid.Open({
     region: 'us-east-1',
   }),
 
-  opensearch: Open({
+  opensearch: valid.Open({
     node: 'NODE-URL',
   }),
-}
+})
 
 Object.assign(OpensearchStore, {
   defaults,

@@ -21,7 +21,7 @@ describe('OpensearchStore', () => {
     const seneca = Seneca({ legacy: false })
       .test()
       .use('promisify')
-      .use('entity')
+      .use('@seneca/entity')
       .use(OpensearchStore)
     await seneca.ready()
 
@@ -174,7 +174,7 @@ function makeSeneca() {
   return Seneca({ legacy: false })
     .test()
     .use('promisify')
-    .use('entity')
+    .use('@seneca/entity')
     .use(OpensearchStore, {
       map: {
         'foo/chunk': '*'
