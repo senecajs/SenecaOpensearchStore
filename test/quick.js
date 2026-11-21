@@ -8,7 +8,6 @@ run()
 async function run() {
   const seneca = Seneca({ legacy: false })
     .test()
-    .use('promisify')
     .use('@seneca/entity')
     .use('..', {
       map: {

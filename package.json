@@ -16,7 +16,7 @@
     "test-watch": "jest --coverage --watchAll",
     "watch": "tsc -w -d",
     "build": "tsc -d",
-    "doc": "seneca-doc -p seneca-entity",
+    "doc": "seneca-doc -p @seneca/entity",
     "prettier": "prettier --write --no-semi --single-quote src/**/*.ts test/*.js",
     "reset": "npm run clean && npm i && npm run build && npm test",
     "clean": "rm -rf node_modules dist package-lock.json yarn.lock",
@@ -26,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/senecajs/SenecaOpensearchStore"
+    "url": "git+https://github.com/senecajs/SenecaOpensearchStore.git"
   },
   "keywords": [
     "seneca",
@@ -36,25 +36,20 @@
     "memory"
   ],
   "peerDependencies": {
-    "@seneca/entity-util": ">=3",
-    "@seneca/entity": ">=29",
-    "seneca": ">=3.38||>=4.0.0-rc5",
-    "seneca-promisify": ">=3"
+    "@seneca/entity": "^29.0.0",
+    "seneca": "^4.0.0"
   },
   "devDependencies": {
-    "@seneca/doc": "^8.0.0",
+    "@seneca/doc": "^9.0.0",
     "@seneca/entity": "^29.0.0",
-    "@seneca/maintain": "^0.1.0",
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.14.2",
+    "@types/node": "^24.10.1",
+    "dotenv": "^16.4.5",
     "esbuild": "^0.21.5",
     "esbuild-jest": "^0.5.0",
     "jest": "^29.7.0",
-    "dotenv": "^16.4.5",
     "prettier": "^3.3.1",
-    "seneca": "^4.0.0-rc5",
-    "seneca-msg-test": "^4.1.0",
-    "seneca-store-test": "^5.2.0",
+    "seneca": "^4.0.0",
     "typescript": "^5.4.5"
   },
   "files": [
@@ -64,8 +59,14 @@
     "src",
     "dist"
   ],
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
     "@aws-sdk/credential-provider-node": "^3.592.0",
     "@opensearch-project/opensearch": "^2.9.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
