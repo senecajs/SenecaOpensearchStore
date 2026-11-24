@@ -44,7 +44,9 @@ tutorials to sample apps to help get you up and running quickly.
 For code samples, please see the [tests][OpensearchStore-tests] for this plugin.
 
 ### Seneca compatibility
-Supports Seneca versions **2.x** and above
+Supports Seneca 4 with the entity plugin `@seneca/entity` 29, on
+Node.js 24 or later. Seneca 3 users stay on `@seneca/opensearch-store`
+0.0.4. `@seneca/entity` replaces `seneca-entity`.
 
 
 ### Supported functionality
@@ -53,8 +55,7 @@ All Seneca data store supported functionality is implemented in [seneca-store-te
 ## Install
 
 ```sh
-npm install seneca
-npm install SenecaOpensearchStore
+npm install seneca@^4 @seneca/entity @seneca/opensearch-store
 ```
 
 You'll need the [seneca](http://github.com/senecajs/seneca) toolkit to use this module - it's just a plugin.
@@ -65,7 +66,7 @@ You'll need the [seneca](http://github.com/senecajs/seneca) toolkit to use this 
 var seneca = require('seneca')()
 
 seneca.use('basic')
-.use('entity')
+.use('@seneca/entity')
 
 // Since OpensearchStore is a default plugin, it does not need to be
 // added with .use(). You can just go ahead and use it.
@@ -124,6 +125,25 @@ To run tests, simply use npm:
 ```sh
 npm run test
 ```
+
+The `insert-remove` and `vector-cat` tests need an OpenSearch node and
+skip unless `SENECA_OPENSEARCH_TEST_NODE` is set. For AWS OpenSearch
+Serverless, also set `SENECA_OPENSEARCH_TEST_INDEX` to an existing k-NN
+index of the collection (field `vector`, dimension 8), AWS credentials
+for the default provider chain, and `SENECA_OPENSEARCH_TEST_WAIT` to the
+collection's refresh interval in milliseconds (5000 for NextGen, 60000
+for Classic vector collections; the default is 2222). A local OpenSearch
+node with the k-NN plugin and security off works too:
+
+```sh
+export SENECA_OPENSEARCH_TEST_NODE=http://127.0.0.1:9200
+npm test
+```
+
+Without `SENECA_OPENSEARCH_TEST_INDEX`, the tests create a k-NN index for
+the run and delete it afterwards. For a node on `localhost` or
+`127.0.0.1` they set dummy AWS credentials when none are set, because the
+plugin always signs its requests for the `aoss` service.
 
 ## License
 Copyright (c) 2015-2016, Richard Rodger and other contributors.

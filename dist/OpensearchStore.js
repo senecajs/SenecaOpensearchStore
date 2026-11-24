@@ -4,8 +4,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const aws_1 = require("@opensearch-project/opensearch/aws");
 const opensearch_1 = require("@opensearch-project/opensearch");
 const credential_provider_node_1 = require("@aws-sdk/credential-provider-node");
-const gubu_1 = require("gubu");
-const { Open, Any } = gubu_1.Gubu;
 function OpensearchStore(options) {
     const seneca = this;
     const init = seneca.export('entity/init');
@@ -17,7 +15,7 @@ function OpensearchStore(options) {
             // const seneca = this
             const ent = msg.ent;
             const canon = ent.canon$({ object: true });
-            const index = resolveIndex(ent, options);
+            const index = resolveIndex(msg, options);
             const body = ent.data$(false);
             const fieldOpts = options.field;
             ['zone', 'base', 'name'].forEach((n) => {
@@ -43,7 +41,7 @@ function OpensearchStore(options) {
             // const seneca = this
             const ent = msg.ent;
             // const canon = ent.canon$({ object: true })
-            const index = resolveIndex(ent, options);
+            const index = resolveIndex(msg, options);
             let q = msg.q || {};
             if (null != q.id) {
                 client
@@ -72,7 +70,7 @@ function OpensearchStore(options) {
         list: function (msg, reply) {
             // const seneca = this
             const ent = msg.ent;
-            const index = resolveIndex(ent, options);
+            const index = resolveIndex(msg, options);
             const query = buildQuery({ index, options, msg });
             // console.log('LISTQ')
             // console.dir(query, { depth: null })
@@ -99,7 +97,7 @@ function OpensearchStore(options) {
         remove: function (msg, reply) {
             // const seneca = this
             const ent = msg.ent;
-            const index = resolveIndex(ent, options);
+            const index = resolveIndex(msg, options);
             const q = msg.q || {};
             let id = q.id;
             let query;
@@ -211,7 +209,7 @@ function buildQuery(spec) {
             });
         }
     }
-    const vector$ = msg.vector$ || ((_a = q.directive$) === null || _a === void 0 ? void 0 : _a.vector$);
+    const vector$ = msg.vector$ || q.vector$ || ((_a = q.directive$) === null || _a === void 0 ? void 0 : _a.vector$);
     if (vector$) {
         parts.push({
             knn: {
@@ -237,7 +235,13 @@ function buildQuery(spec) {
     }
     return query;
 }
-function resolveIndex(ent, options) {
+function resolveIndex(msg, options) {
+    var _a, _b, _c;
+    const ent = msg.ent;
+    const index = msg.index$ || ((_a = msg.q) === null || _a === void 0 ? void 0 : _a.index$) || ((_c = (_b = msg.q) === null || _b === void 0 ? void 0 : _b.directive$) === null || _c === void 0 ? void 0 : _c.index$);
+    if (null != index) {
+        return index;
+    }
     let indexOpts = options.index;
     if ('' != indexOpts.exact && null != indexOpts.exact) {
         return indexOpts.exact;
@@ -258,10 +262,11 @@ function resolveIndex(ent, options) {
         .replace(/\//g, '_');
     return prefix + infix + suffix;
 }
-// Default options.
-const defaults = {
+// Default options, built with the builders Seneca passes in: shape from
+// Seneca 4.0.0, Gubu before.
+const defaults = ({ valid }) => ({
     debug: false,
-    map: Any(),
+    map: valid.Any(),
     index: {
         prefix: '',
         suffix: '',
@@ -280,13 +285,13 @@ const defaults = {
             size: 11,
         },
     },
-    aws: Open({
+    aws: valid.Open({
         region: 'us-east-1',
     }),
-    opensearch: Open({
+    opensearch: valid.Open({
         node: 'NODE-URL',
     }),
-};
+});
 Object.assign(OpensearchStore, {
     defaults,
     utils: { resolveIndex },
